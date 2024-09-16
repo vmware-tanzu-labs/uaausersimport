@@ -6,13 +6,14 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/uaausersimport/config"
-	. "github.com/pivotalservices/uaausersimport/functions"
+	"github.com/pivotalservices/uaausersimport/functions"
 )
 
-var info *Info = &Info{
+var ctx *config.Context = &config.Context{
 	Ccurl:    "https://ccurl.sysdomain.com",
-	Uaaurl:   "https://uaaurl.sysdomain.com",
+	UAAURL:   "https://uaaurl.sysdomain.com",
 	Clientid: "bulkimport",
 	Secret:   "test",
 }
@@ -20,13 +21,17 @@ var info *Info = &Info{
 var _ = Describe("Function", func() {
 	file, _ := os.Open("fixtures/users.yml")
 	cfg, _ := config.Parse(file)
+	logger := lager.NewLogger("uaausersimport")
+	ctx.Logger = logger
+	ctx.Users = cfg.Users
 	var _ = Describe("Map Users", func() {
-		It("Should map users with tokenFuncs", func() {
-			var tokenFunc TokenFunc = func(*Info) (string, error) {
+		It("Should map users with GetTokenFuncs", func() {
+			var GetTokenFunc functions.GetTokenFunc = func(*config.Context) (string, error) {
 				return "my_token", nil
 			}
-			resultFunc := tokenFunc.MapUsers(*cfg)
-			userInfos, err := resultFunc(info)
+			Ω(len(ctx.Users)).Should(Equal(2))
+			resultFunc := GetTokenFunc.MapUsers()
+			userInfos, err := resultFunc(ctx)
 			Ω(err).Should(BeNil())
 			Ω(len(userInfos)).Should(Equal(2))
 			Ω(userInfos[0].Token).Should(Equal("my_token"))

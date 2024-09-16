@@ -1,27 +1,30 @@
 package token
 
-import "encoding/json"
-import "fmt"
-import "github.com/pivotalservices/gtils/http"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 
-import "github.com/pivotalservices/uaausersimport/functions"
-import "io/ioutil"
-import . "net/http"
+	"github.com/pivotal-golang/lager"
+	ghttp "github.com/pivotalservices/gtils/http"
+	"github.com/pivotalservices/uaausersimport/config"
+	"github.com/pivotalservices/uaausersimport/functions"
+)
 
 type Token struct {
 	AccessToken string `json:"access_token"`
 }
 
-var NewGateway = func() http.HttpGateway {
-	return http.NewHttpGateway()
+var NewGateway = func() ghttp.HttpGateway {
+	return ghttp.NewHttpGateway()
 }
 
-var GetToken functions.TokenFunc = func(info *functions.Info) (token string, err error) {
-	fmt.Println("Getting token.............")
-	entity := http.HttpRequestEntity{
-		Url:      fmt.Sprintf("%s/oauth/token?grant_type=client_credentials", info.Uaaurl),
-		Username: info.Clientid,
-		Password: info.Secret,
+var GetTokenOld functions.GetTokenFunc = func(c *config.Context) (token string, err error) {
+	entity := ghttp.HttpRequestEntity{
+		Url:      fmt.Sprintf("%s/oauth/token?grant_type=client_credentials", c.UAAURL),
+		Username: c.Clientid,
+		Password: c.Secret,
 	}
 	httpGateway := NewGateway()
 	request := httpGateway.Post(entity, nil)
@@ -32,7 +35,18 @@ var GetToken functions.TokenFunc = func(info *functions.Info) (token string, err
 	return parse(response)
 }
 
-func parse(response *Response) (tokenString string, err error) {
+var GetToken functions.GetTokenFunc = func(c *config.Context) (tokenString string, err error) {
+	c.Logger.Debug("GetTokenFunc", lager.Data{"msg": "Start fetch token............."})
+	token, err := c.TokenFetcher.FetchToken(true)
+	if err != nil {
+		return
+	}
+	tokenString = token.AccessToken
+	c.Logger.Debug("GetTokenFunc", lager.Data{"msg": "Finish fetch token", "token": tokenString})
+	return
+}
+
+func parse(response *http.Response) (tokenString string, err error) {
 	body := response.Body
 	defer body.Close()
 	token := &Token{}

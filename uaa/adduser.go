@@ -1,4 +1,4 @@
-package adduser
+package uaa
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/pivotalservices/uaausersimport/functions"
+	"github.com/pivotalservices/uaausersimport/config"
 )
 
 type Email struct {
@@ -26,14 +26,29 @@ type UserCreateResponse struct {
 	Id string
 }
 
+type UserInfo struct {
+	*config.Context
+	Token  string
+	User   config.User
+	Origin string
+}
+
+type UserIdInfo struct {
+	UserInfo
+	UserId string
+}
+
+type AddUAAUserFunc func(UserInfo) (string, error)
+
 var NewRoundTripper = func() http.RoundTripper {
 	return &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 }
 
-var Adduser functions.UaaAddUserFunc = func(info functions.UserInfo) (userId string, err error) {
-	fmt.Println(fmt.Sprintf("add user id: %s .........", info.User.Uid))
+var AddUAAUser AddUAAUserFunc = func(info UserInfo) (userId string, err error) {
+	info.Logger.Debug("Invoking AddUAAUserFunc")
+	info.Logger.Debug(fmt.Sprintf("add user id: %s .........", info.User.Uid))
 	emails := make([]Email, 0)
 	for _, value := range info.User.Emails {
 		email := Email{
@@ -52,10 +67,11 @@ var Adduser functions.UaaAddUserFunc = func(info functions.UserInfo) (userId str
 		return
 	}
 	body := bytes.NewBuffer(data)
-	response, err := info.RequestFn(info.Token, fmt.Sprintf("%s/Users", info.Uaaurl), "POST", "application/json", body)
+	response, err := info.RequestFn(info.Token, fmt.Sprintf("%s/Users", info.UAAURL), "POST", "application/json", body)
 	if err != nil {
 		return
 	}
+	info.Logger.Debug("Finish invoking AddUAAUserFunc")
 	return parse(response)
 }
 

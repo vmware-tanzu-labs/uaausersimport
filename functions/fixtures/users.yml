@@ -1,4 +1,3 @@
-origin: ldap
 users:
 - uid: jcalabrese@pivotal.io
   externalid: uid=jcalabrese,ou=People,dc=homelab,dc=io

@@ -55,28 +55,28 @@ Steps (What this progam is doing?):
      orgs:
        - name: org1
          roles:
-         - managers
-         - auditors
+         - OrgManager
+         - OrgAuditor
          spaces:
            - name: space1
              roles:
-             - managers
-             - developers
-             - auditors
+             - SpaceManager
+             - SpaceDeveloper
+             - SpaceAuditor
            - name: space2
              roles:
-             - managers
-             - auditors
+             - SpaceManager
+             - SpaceAuditor
        - name: org2
          roles:
-         - auditors
+         - OrgAuditor
          spaces:
            - name: space1
              roles:
-             - auditors
+             - SpaceAuditor
            - name: space2
              roles:
-             - auditors
+             - SpaceAuditor
    ```
 
 3. Add user to the cloudcontroler
@@ -86,7 +86,7 @@ Steps (What this progam is doing?):
    * Functional Programming (In [main.go](main.go))
 
    ```
-      token.GetToken.MapUsers(cfg.Users).AddUaaUser(uaa.Adduser).AddCCUser(cc.Adduser).MapOrgs(cc.AssociateOrg).MapSpaces(cc.AssociateSpace)
+      token.GetToken.MapUsers().AddUAAUsers().AddCCUsers().MapOrgs().MapSpaces(ctx)
    ```
 
 ## How to run

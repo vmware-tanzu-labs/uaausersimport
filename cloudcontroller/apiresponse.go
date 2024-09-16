@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type Metadata struct {
@@ -30,7 +31,7 @@ func parseResponse(response *http.Response) (guid string, err error) {
 		return
 	}
 	if len(apiResp.Resources) != 1 {
-		err = errors.New("The api response returns more than 1 resource")
+		err = errors.New("The api response returns " + strconv.Itoa(len(apiResp.Resources)) + " resources. Should return exactly 1.")
 		return
 	}
 	guid = apiResp.Resources[0].Metadata.Guid

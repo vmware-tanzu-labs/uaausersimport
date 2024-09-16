@@ -7,28 +7,28 @@ users:
   orgs:
     - name: org1
       roles:
-      - managers
-      - auditors
+      - OrgManager
+      - OrgAuditor
       spaces:
         - name: space1
           roles:
-          - managers
-          - developers
-          - auditors
+          - SpaceManager
+          - SpaceDeveloper
+          - SpaceAuditor
         - name: space2
           roles:
-          - managers
-          - auditors
+          - SpaceManager
+          - SpaceAuditor
     - name: org2
       roles:
-      - auditors
+      - SpaceAuditor
       spaces:
         - name: space1
           roles:
-          - auditors
+          - SpaceAuditor
         - name: space2
           roles:
-          - auditors
+          - SpaceAuditor
 - uid: rparrish@pivotal.io
   externalid: uid=rparrish,ou=People,dc=homelab,dc=io
   emails:
@@ -36,26 +36,26 @@ users:
   orgs:
     - name: org1
       roles:
-      - auditors
+      - SpaceAuditor
       spaces:
         - name: space1
           roles:
-          - managers
+          - SpaceManager
         - name: space2
           roles:
-          - managers
+          - SpaceManager
     - name: org2
       roles:
-      - managers
-      - auditors
+      - SpaceManager
+      - SpaceAuditor
       spaces:
         - name: space1
           roles:
-          - managers
-          - developers
-          - auditors
+          - SpaceManager
+          - SpaceDeveloper
+          - SpaceAuditor
         - name: space2
           roles:
-          - managers
-          - developers
-          - auditors
+          - SpaceManager
+          - SpaceDeveloper
+          - SpaceAuditor
